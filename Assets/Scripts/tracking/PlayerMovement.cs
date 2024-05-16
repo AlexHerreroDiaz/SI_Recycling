@@ -6,8 +6,11 @@ using UnityEngine.SceneManagement;
 public class PlayerMovement : MonoBehaviour
 {
     // Start is called before the first frame update
+    public bool manual;
+    public Quaternion q;
 
     public bool selectingPlayer = false;
+
     [SerializeField] int playerIndex;
     void Start()
     {
@@ -23,24 +26,7 @@ public class PlayerMovement : MonoBehaviour
     public void setPosition(Vector3 pos)
     {
         //swith playerIndex
-        //transform.position = pos;
-
-        /*Vector3 newPos;
-        switch (playerIndex)
-        {
-            case 1:
-                newPos = new Vector3(Mathf.Clamp(pos.x, 0, 100), pos.y, pos.z);
-            break;
-
-            case 2:
-                newPos = new Vector3(Mathf.Clamp(pos.x, 0, 100), pos.y, pos.z);
-            break;
-
-            default:
-                newPos = pos;
-            break;
-        }
-        transform.position = newPos;*/
+        transform.position = pos;
     }
 
     public void setRotation(Quaternion quat)
