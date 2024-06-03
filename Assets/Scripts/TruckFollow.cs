@@ -57,6 +57,16 @@ public class TruckFollow : MonoBehaviour
         }
         else if(isParked || !selectedByPlayer){
             selectedByPlayer = false;
+            
+            if(player != null){
+                player.GetComponent<PlayerMovement>().selectingPlayer = false;
+                player = null;
+            }
+
+            if(target != null){
+                target = null;
+            }
+            
 
             selectDelay += Time.fixedDeltaTime;
             // Move to the park position when parked
@@ -64,7 +74,7 @@ public class TruckFollow : MonoBehaviour
             // Rotate to the parked rotation
             transform.rotation = Quaternion.Lerp(transform.rotation, parkedRotation, rotationSpeed * Time.fixedDeltaTime);
         }
-        if (selectDelay > 3f){
+        if (selectDelay > 6f){
             isParked = false;
         }
     }
@@ -97,7 +107,7 @@ public class TruckFollow : MonoBehaviour
             // Increment the collision timer
             collisionTimer += Time.deltaTime;
 
-            // Check if the collision timer exceeds 2 seconds
+            // Check if the collision timer exceeds 4 seconds
             if (collisionTimer >= 4f)
             {
                 // Truck has been parked for 2 seconds, stop following the player

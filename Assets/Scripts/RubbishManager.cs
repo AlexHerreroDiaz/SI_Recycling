@@ -9,13 +9,14 @@ public class RubbishManager : MonoBehaviour
     public float spawnRadius = 50f; // Radius within which rubbish can spawn
     public float parabolaHeight = 10f; // The peak height of the parabola
     public float spawnInterval = 2f; // Time interval between spawns
-    public int maxSpawnedRubbish = 10; // Maximum number of spawned rubbish elements
+    public int maxSpawnedRubbish; // Current maximum number of spawned rubbish elements
     public List<Collider> restrictedAreas; // List of colliders specifying restricted spawn areas
 
     private List<GameObject> spawnedRubbishList = new List<GameObject>(); // List to track spawned rubbish
 
     void Start()
     {
+        maxSpawnedRubbish = 5;
         StartCoroutine(SpawnRubbish());
     }
 
@@ -83,5 +84,30 @@ public class RubbishManager : MonoBehaviour
             }
         }
         return false;
+    }
+
+    public void OnRoundCompleted()
+    {
+        // Increase the max number of spawned rubbish by 5
+        maxSpawnedRubbish += 5;
+
+        // Clear the current spawned rubbish list
+        foreach (GameObject rubbish in spawnedRubbishList)
+        {
+            if (rubbish != null)
+            {
+                Destroy(rubbish);
+            }
+        }
+        spawnedRubbishList.Clear();
+
+        // Reset the counter
+        CounterController.Instance.ResetCounter();
+    }
+
+    public int GetMaxSpawnedRubbish()
+    {
+        Debug.Log("Max Counter: " + maxSpawnedRubbish);
+        return maxSpawnedRubbish;
     }
 }

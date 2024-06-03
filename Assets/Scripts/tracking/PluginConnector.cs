@@ -39,7 +39,7 @@ public class PluginConnector : MonoBehaviour
 
     //attributes for non-tracking input
     private int playerSelected = 1;
-    private int trackingDisabledPlayerSpeed = 5;
+    private int trackingDisabledPlayerSpeed = 15;
 
     //attributes for tracking calibration
     [Header("Calibration")]
