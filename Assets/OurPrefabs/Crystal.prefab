@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 7726833763521205718}
   - component: {fileID: 7726833763521205719}
   - component: {fileID: 7726833763521205712}
-  - component: {fileID: 7726833763521205713}
   - component: {fileID: 7726833763521205714}
   m_Layer: 0
   m_Name: Crystal
@@ -94,7 +93,7 @@ SphereCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7726833763521205708}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5
@@ -115,19 +114,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!65 &7726833763521205713
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7726833763521205708}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1.0000001, z: 0.99999994}
-  m_Center: {x: -0.0000019073486, y: 0.000000029802322, z: 0.0000019073486}
 --- !u!114 &7726833763521205714
 MonoBehaviour:
   m_ObjectHideFlags: 0
