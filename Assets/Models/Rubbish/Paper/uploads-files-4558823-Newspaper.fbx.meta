@@ -3,7 +3,12 @@ guid: e6e6195c5dfb64232b7ad6ed5d7e86f3
 ModelImporter:
   serializedVersion: 20200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Newspaper
+    second: {fileID: 2100000, guid: 533a57962757d944d886c7cb3919a240, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
