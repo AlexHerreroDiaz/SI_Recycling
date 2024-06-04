@@ -5,9 +5,12 @@ public class CounterController : MonoBehaviour
 {
     public static CounterController Instance { get; private set; }
 
-    public Text counterText; // Assign this in the Inspector
+    public Text counterText;
+    public Text DayText;
+
     private int counter;
     private int maxCounter; // Set the maximum counter value for each round
+    private int currentRound;
 
     public RubbishManager rubbishManager;
 
@@ -49,10 +52,16 @@ public class CounterController : MonoBehaviour
         counter = 0;
         maxCounter = rubbishManager.GetMaxSpawnedRubbish();
         UpdateCounterText();
+        currentRound = rubbishManager.GetCurrentRound();
+        UpdateDayText();
     }
 
     void UpdateCounterText()
     {
         counterText.text = counter + " / " + maxCounter;
+    }
+        void UpdateDayText()
+    {
+        DayText.text = "Day:" + currentRound;
     }
 }

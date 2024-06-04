@@ -9,6 +9,9 @@ TagManager:
   - Park
   - Rubbish
   - Bin
+  - Factory
+  - Tool
+  - Start
   layers:
   - Default
   - TransparentFX

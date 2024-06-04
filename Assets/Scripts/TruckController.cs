@@ -9,7 +9,9 @@ public class TruckController : MonoBehaviour
         Plastic,
         Crystal,
         Paper,
-        Residual
+        Residual,
+        Tool1,
+        Tool2
     }
 
     // Define an enum for the types of trucks
@@ -24,6 +26,12 @@ public class TruckController : MonoBehaviour
     public TruckType truckType; // Set this in the Inspector for each truck
 
     private List<Rubbish> attachedRubbishList = new List<Rubbish>(); // List to hold multiple pieces of rubbish
+    private List<Tool> attachedToolList = new List<Tool>(); // List to hold tools
+
+    public AudioSource pickupSound;
+    public AudioSource putSound;
+
+    public AudioSource repairSound;
 
     void OnTriggerEnter(Collider other)
     {
@@ -42,6 +50,15 @@ public class TruckController : MonoBehaviour
                 }
             }
         }
+        else if (other.CompareTag("Tool"))
+        {
+            Debug.Log("Tool detected");
+            Tool tool = other.GetComponent<Tool>();
+            if (tool != null)
+            {
+                AttachTool(tool);
+            }
+        }
         else if (other.CompareTag("Bin") && attachedRubbishList.Count > 0)
         {
             Bin bin = other.GetComponent<Bin>();
@@ -49,6 +66,20 @@ public class TruckController : MonoBehaviour
             {
                 DepositRubbish(bin.transform);
             }
+        }
+        else if (other.CompareTag("Factory") && attachedToolList.Count > 0)
+        {
+            Factory factory = other.GetComponent<Factory>();
+            if (factory != null)
+            {
+                DepositTools(factory.transform);
+            }
+        }
+    }
+
+    void OnCollisionEnter(Collision collider) {
+        if (collider.gameObject.CompareTag("Factory")) {
+
         }
     }
 
@@ -66,6 +97,7 @@ public class TruckController : MonoBehaviour
                 return rubbishType == RubbishType.Residual;
             default:
                 return false;
+
         }
     }
 
@@ -92,6 +124,12 @@ public class TruckController : MonoBehaviour
 
     void AttachRubbish(Rubbish rubbish)
     {
+
+        if (pickupSound != null)
+        {
+            pickupSound.Play();
+        }
+
         attachedRubbishList.Add(rubbish);
 
         // Set the rubbish object as a child of the truck
@@ -114,8 +152,39 @@ public class TruckController : MonoBehaviour
         Debug.Log("List length: " + attachedRubbishList.Count);
     }
 
+    void AttachTool(Tool tool)
+    {
+        if (pickupSound != null)
+        {
+            pickupSound.Play();
+        }
+
+        attachedToolList.Add(tool);
+
+        // Set the tool object as a child of the truck
+        tool.transform.SetParent(this.transform);
+
+        // Disable the tool's Rigidbody to prevent physics interactions
+        Rigidbody toolRb = tool.GetComponent<Rigidbody>();
+        if (toolRb != null)
+        {
+            toolRb.isKinematic = true;
+        }
+
+        // Set the position of the tool to be at y = 8.5 + (index * offset) in the truck's local space
+        float yOffset = 8.5f + (attachedToolList.Count - 1) * 1.5f; // Example offset for stacking
+        tool.transform.localPosition = new Vector3(0, yOffset, 0);
+
+        // Adjust the scale of the tool to make it appear smaller on the truck (dividing by 2)
+        tool.transform.localScale *= 0.5f;
+    }
+
     void DepositRubbish(Transform binTransform)
     {
+        if (putSound != null)
+        {
+            putSound.Play();
+        }
         // Detach and process each piece of rubbish
         foreach (var rubbish in attachedRubbishList)
         {
@@ -145,5 +214,47 @@ public class TruckController : MonoBehaviour
 
         // Clear the attached rubbish list
         attachedRubbishList.Clear();
+    }
+
+    void DepositTools(Transform factoryTransform)
+    {
+        if (repairSound != null)
+        {
+            repairSound.Play();
+        }
+        // Detach and process each tool
+        foreach (var tool in attachedToolList)
+        {
+            // Notify the RubbishManager that the tool has been collected
+            RubbishManager rubbishManager = FindObjectOfType<RubbishManager>();
+
+        
+            tool.transform.SetParent(null);
+
+            // Restore the original size of the tool
+            tool.transform.localScale *= 2;
+
+            // Set the position of the tool to the factory's position
+            tool.transform.position = rubbishManager.factoryLocation.position;
+
+            // Enable the tool's Rigidbody to interact with physics again
+            Rigidbody toolRb = tool.GetComponent<Rigidbody>();
+            if (toolRb != null)
+            {
+                toolRb.isKinematic = false;
+            }
+
+            
+            if (rubbishManager != null)
+            {
+                rubbishManager.OnToolCollected(tool.gameObject);
+            }
+
+            // Destroy the tool after 0.5 seconds
+            Destroy(tool.gameObject, 0.5f);
+        }
+
+        // Clear the attached tool list
+        attachedToolList.Clear();
     }
 }

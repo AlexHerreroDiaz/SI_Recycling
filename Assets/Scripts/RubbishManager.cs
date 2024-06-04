@@ -13,21 +13,72 @@ public class RubbishManager : MonoBehaviour
     public List<Collider> restrictedAreas; // List of colliders specifying restricted spawn areas
 
     private List<GameObject> spawnedRubbishList = new List<GameObject>(); // List to track spawned rubbish
+    private GameObject spawnedTool1;
+    private GameObject spawnedTool2;
+
+    // List to hold game objects to enable visibility
+    public List<GameObject> gameObjectsToEnable; // Set this in the Inspector
+
+    private int currentRound = 0;
+
+    public GameObject confetti;
+    public GameObject stain;
+
+    public bool noSpawn = false;
+
+    public AudioSource confettiSound;
+
 
     void Start()
     {
+        confetti.SetActive(false);
+        stain.SetActive(true);
+        // Disable all game objects that are the upgrades of the old factory
+        foreach (var obj in gameObjectsToEnable)
+        {
+            obj.SetActive(false);
+        }
         maxSpawnedRubbish = 5;
         StartCoroutine(SpawnRubbish());
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            CollectAllRubbish();
+            GoToNextRound();
+        }
+    }
+
+    void CollectAllRubbish()
+    {
+        foreach (GameObject rubbish in spawnedRubbishList)
+        {
+            if (rubbish != null)
+            {
+                Destroy(rubbish);
+            }
+        }
+        spawnedRubbishList.Clear();
+    }
+
+    void GoToNextRound()
+    {
+        OnRoundCompleted();
+    }
     IEnumerator SpawnRubbish()
     {
+
         while (true)
         {
+            if(noSpawn) {
+                yield break;
+            }
             if (spawnedRubbishList.Count < maxSpawnedRubbish)
             {
                 // Randomly select a rubbish prefab
-                GameObject rubbishPrefab = rubbishPrefabs[Random.Range(0, rubbishPrefabs.Length)];
+                GameObject rubbishPrefab = rubbishPrefabs[Random.Range(0, rubbishPrefabs.Length - 2)];
 
                 // Instantiate the rubbish at the factory location
                 GameObject spawnedRubbish = Instantiate(rubbishPrefab, factoryLocation.position, Quaternion.identity);
@@ -86,28 +137,121 @@ public class RubbishManager : MonoBehaviour
         return false;
     }
 
-    public void OnRoundCompleted()
+        public void OnRoundCompleted()
     {
-        // Increase the max number of spawned rubbish by 5
-        maxSpawnedRubbish += 5;
+        // Spawn tools
+        SpawnTools();
+    }
 
-        // Clear the current spawned rubbish list
-        foreach (GameObject rubbish in spawnedRubbishList)
+    void SpawnTools()
+    {
+        // Spawn tool 1
+        spawnedTool1 = Instantiate(rubbishPrefabs[rubbishPrefabs.Length - 2], factoryLocation.position, Quaternion.identity);
+        StartCoroutine(MoveRubbishParabolically(spawnedTool1, factoryLocation.position, GetRandomSpawnPosition()));
+
+        // Spawn tool 2
+        spawnedTool2 = Instantiate(rubbishPrefabs[rubbishPrefabs.Length - 1], factoryLocation.position, Quaternion.identity);
+        StartCoroutine(MoveRubbishParabolically(spawnedTool2, factoryLocation.position, GetRandomSpawnPosition()));
+    }
+
+    Vector3 GetRandomSpawnPosition()
+    {
+        Vector3 randomPosition;
+        do
         {
-            if (rubbish != null)
-            {
-                Destroy(rubbish);
-            }
-        }
-        spawnedRubbishList.Clear();
+            randomPosition = factoryLocation.position + (Random.insideUnitSphere * spawnRadius);
+            randomPosition.y = factoryLocation.position.y; // Keep the y position the same as the factory
+        } while (IsInRestrictedArea(randomPosition));
+        return randomPosition;
+    }
 
-        // Reset the counter
-        CounterController.Instance.ResetCounter();
+    public void OnToolCollected(GameObject tool)
+    {
+        if (tool == spawnedTool1)
+        {
+            spawnedTool1 = null;
+        }
+        else if (tool == spawnedTool2)
+        {
+            spawnedTool2 = null;
+        }
+
+        // Check if both tools are collected
+        if (AreAllToolsCollected())
+        {
+            Debug.Log("Next Round!");
+
+            // Increase the max number of spawned rubbish by 3
+            maxSpawnedRubbish += 3;
+
+            gameObjectsToEnable[currentRound].SetActive(true);
+            currentRound++;
+
+
+            // Clear the current spawned rubbish list
+            foreach (GameObject rubbish in spawnedRubbishList)
+            {
+                if (rubbish != null)
+                {
+                    Destroy(rubbish);
+                }
+            }
+            spawnedRubbishList.Clear();
+
+            // Reset the counter
+            CounterController.Instance.ResetCounter();
+
+            // Enable the next game object on the list of renewables energy sources
+            // EnableNextGameObject();
+
+            foreach (Transform child in stain.transform)
+            {
+                child.localScale = new Vector3(child.localScale.x * 0.9f, child.localScale.y, child.localScale.z * 0.9f);
+            }
+            // Start spawning rubbish again
+            if(currentRound < gameObjectsToEnable.Count) {
+                StartCoroutine(SpawnRubbish());
+            } else {
+                noSpawn = true;
+                StartConfetti();
+            }
+            
+
+
+        }
+    }
+
+    void StartConfetti()
+    {
+        if (confettiSound != null)
+        {
+            confettiSound.Play();
+        }
+        // Start the confetti particle system
+        if (confetti != null)
+        {
+            confetti.SetActive(true);
+            
+        }
+        if(stain != null)
+        {
+            stain.SetActive(false);
+        }
+    }
+
+    public bool AreAllToolsCollected()
+    {
+        return spawnedTool1 == null && spawnedTool2 == null;
     }
 
     public int GetMaxSpawnedRubbish()
     {
-        Debug.Log("Max Counter: " + maxSpawnedRubbish);
         return maxSpawnedRubbish;
     }
+
+    public int GetCurrentRound()
+    {
+        return currentRound;
+    }
+
 }
