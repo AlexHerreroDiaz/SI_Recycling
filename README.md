@@ -1,4 +1,4 @@
-# SI_Recycling
+<img src="https://github.com/AlexHerreroDiaz/SI_Recycling/blob/main/logoGame.png" width="300" /></img>
 ## Interactive Systems
 ### Universitat Pompeu Fabra
 #### Group Members
